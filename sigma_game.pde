@@ -1,15 +1,17 @@
 float camX,camY,camZ;
 float yVelocity;
 float camYaw, camPitch;
-float gravity = 0.2;
 
 boolean[] keyIndex = new boolean[5];
 
-Box box1 = new Box();
+PhysicsObject apple1 = new PhysicsObject();
 PShape apple;
+PShape tree;
+PImage bg;
+
 
 void setup()  {
-  size(1920, 800, P3D);
+  size(1920, 1080, P3D);
   noStroke();
   fill(204);
   camX = 0;
@@ -17,6 +19,9 @@ void setup()  {
   camZ = 0;
   yVelocity = 0;
   apple = loadShape("apple.obj");
+  tree = loadShape("baum.obj");
+  
+  bg = loadImage("star_field.png");
   
   
   
@@ -64,45 +69,42 @@ void keyReleased() {
 }
 
 void draw()  {
-  float fov = PI/3.0;
-  float cameraZ = (height/2.0) / tan(fov/2.0);
+  // float fov = PI/3.0;
+  // float cameraZ = (height/2.0) / tan(fov/2.0);
   
   // input handling
 
-  println(camX, box1.getY(), sin(camYaw) * 10, cos(camYaw) * 10);
+  println(apple1.getY());
   if (keyPressed){
     if (keyIndex[0]) { // W
-      camZ += 10;
-      // camZ += cos(camYaw) * 10; 
+      camX -= sin(camYaw) * 10;
+      camZ += cos(camYaw) * 10; 
     
   }
   if (keyIndex[2]) { // S
-      camZ -= 10;
-      //camX += sin(camYaw + (PI/2)) * 10; 
-      //camZ += cos(camYaw + (PI/2)) * 10;
+      camX -= sin(camYaw + 3.14) * 10;
+      camZ += cos(camYaw + 3.14) * 10; 
   }
 
   if (keyIndex[1]) { // A
-      camX += 10;
-      //camX += sin(camYaw) * 10; 
-      //camZ += cos(camYaw) * 10;
+      camX -= sin(camYaw - 1.57) * 10;
+      camZ += cos(camYaw - 1.57) * 10; 
     
   }
   if (keyIndex[3]) { // D
-      camX -= 10;
-      //camX += sin(camYaw) * 10; 
-      //camZ += cos(camYaw) * 10;    
+      camX -= sin(camYaw + 1.57) * 10;
+      camZ += cos(camYaw + 1.57) * 10;    
   }
   if (keyIndex[4] && yVelocity >= 0) {
     yVelocity = -30;
   }
   }
   
-  camYaw = radians(mouseX / 10.6667);;
-  camPitch = radians(mouseY / 10);;
+  camYaw = radians(mouseX / 5.3334) - 3.14;
+  camPitch = radians(mouseY / 6) - 1.57;
 
   // Logic
-  box1.logic();
+  apple1.logic();
   yVelocity += 1;
   camY -= yVelocity;
   
@@ -114,11 +116,11 @@ void draw()  {
   // Rendering
   noCursor();
   lights();
-  background(0);
+  background(9, 9, 46);
   
   
-  camera(camX, camY, 220, // eyeX, eyeY, eyeZ
-         camX, camY, camZ, // centerX, centerY, centerZ
+  camera(0, 0, 220, // eyeX, eyeY, eyeZ
+         0, 0, 0, // centerX, centerY, centerZ
          0.0, 1.0, 0.0); // upX, upY, upZ
   
   
@@ -127,23 +129,41 @@ void draw()  {
   //perspective(fov, float(width)/float(height), cameraZ/2.0, cameraZ*2.0);
   
   
-//   rotateX(-PI/6);
-//   rotateY(PI/3);
-
-  rotateX(-camPitch);  // Rotate for pitch (up and down)
-  rotateY(camYaw);    // Rotate for yaw (left and right)
-  translate(camX, camY, camZ);  // Move the scene according to the player's position
-
+  // cam position and rotation
+  beginCamera();
+  rotateX(-camPitch);  // pitch (up / down)
+  rotateY(camYaw);    //  yaw (left / right)
+  translate(camX, camY, camZ);
+  endCamera();
   
-  //rotateY(camPitch);
-  translate(camX,camY,camZ);
-  
-
+  // apple
   pushMatrix();
-  translate(box1.getX(), box1.getY(), box1.getZ());
-  scale(500,500,500);
+  translate(apple1.getX(), apple1.getY(), apple1.getZ());
+  scale(20,20,20);
+  rotateZ(PI);
   shape(apple);
   popMatrix();
+  
+  
+  pushMatrix();
+  translate(0, -120, 0);
+  scale(50,50,50);
+  rotateZ(PI);
+  shape(tree);
+  popMatrix();
+  
+  // orientation lines
+  stroke(255);
+  line(0,-500,0,0,500,0);
+  line(-500,0,0,500,0,0);
+  line(0,0,-500,0,0,500);
+   
+  // floor
+  pushMatrix();
+  translate(0,-1,0);
+  box(1000,0.1,1000);
+  popMatrix();
+  
   
   
 

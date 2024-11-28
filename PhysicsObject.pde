@@ -1,9 +1,10 @@
-public class Box {
+public class PhysicsObject {
     float size;
     float speedY = 0;
     float gravity = 0.2;
     float radius = 20;
-    float ground = -1000;
+    float ground = -100;
+    float bounciness = 0.5;
     
     float x = 50;
     float y = -1000;
@@ -12,14 +13,17 @@ public class Box {
     public void logic() {
 
         speedY += gravity;
-        y += speedY;
+        
 
         if (y > ground) {
-            y = ground - radius;
-            speedY = 0;
+            speedY = -(speedY*bounciness);
         }
+        y = max(y, ground);
+        y += speedY;
 
     }
+    
+    
     
     public float getX() {
         return this.x;
