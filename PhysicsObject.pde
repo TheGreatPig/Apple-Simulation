@@ -1,27 +1,30 @@
 public class PhysicsObject {
     float size;
     float speedY = 0;
-    float gravity = 0.2;
+    float gravity = 9810;
     float radius = 20;
-    float ground = -50;
-    float bounciness = 0.5;
+    float ground = 0;
+    float bounciness = 0.15;
     
     float x = 500;
     float y = -1000;
     float z = 0;
     
     public void logic() {
-
-        speedY += gravity;
-        
-
+        speedY += gravity * 0.01667;
         if (y > ground) {
-            speedY = -(speedY*bounciness);
+            if (abs(speedY) < (gravity*0.02)){ 
+                speedY = 0;
+            }
+            if (speedY > 0) {
+                speedY = -(speedY * bounciness);
+            } 
+            
         }
-        y = min(y, ground);
-        y += speedY;
-
+    
+        y += speedY * 0.01667;
     }
+
     
     
     
@@ -37,4 +40,3 @@ public class PhysicsObject {
     
     
 }
-   
