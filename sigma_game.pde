@@ -1,4 +1,4 @@
-float camX, camY, camZ;
+float camX, camY, camZ; //<>//
 float yVelocity;
 float camYaw, camPitch;
 
@@ -22,6 +22,15 @@ float[][] terrain;
 int movementSpeed = 45;
 int planet = 0; // 0 = Earth, 1 = Moon, 2 = Mars
 
+
+// graph
+int graph = 0;
+ArrayList<Float> graphHistory = new ArrayList<>();
+int graphWidth = 400;
+int graphHeight = 200;
+int maxHistory = 150;
+int graphFactor;
+int graphOffset;
 
 void keyPressed() {
   switch (key) {
@@ -66,8 +75,13 @@ void keyReleased() {
   case 'f':
     keyIndex[5] = false;
     break;
+  case 'x':
+    // graph cycle
+    graph += 1;
+    graphHistory.clear();
+    break;
   case 'c':
-    // planet switch logic
+    // planet cycle
     planet += 1;
 
     switch (planet % 3) {
@@ -88,7 +102,7 @@ void keyReleased() {
 }
 
 void setup() {
-  size(1920, 1080, P3D);
+  size(1920, 900, P3D);
   noStroke();
   fill(204);
   camX = 0;
@@ -104,6 +118,7 @@ void setup() {
 }
 
 void draw() {
+  apple1.overwrite = false;
   if (keyPressed) {
     if (keyIndex[0]) { // W
       camX -= sin(camYaw) * movementSpeed;
@@ -122,12 +137,16 @@ void draw() {
       camX -= sin(camYaw + 1.57) * movementSpeed;
       camZ += cos(camYaw + 1.57) * movementSpeed;
     }
-    if (keyIndex[4] && yVelocity >= 0) {
+    if (keyIndex[4] && yVelocity >= 0) { // Jump
       yVelocity = -30;
     }
-    if (keyIndex[5]) {
+    if (keyIndex[5]) { // reset apple
+      apple1.position.x = 500;
       apple1.position.y = -1000;
+      apple1.position.z = 0;
       apple1.velocity.y = 0;
+      apple1.acceleration.y = 0;
+      apple1.overwrite = true;
     }
   }
 
@@ -306,8 +325,51 @@ void draw() {
   text("1m", 500, -1000, 0);
   text("1m", 1500, 0, 0);
 
-
   camera();
+  
+  // graph
+  println(apple1.acceleration.y);
+  
+  switch (graph % 3) {
+  case 0:
+    graphHistory.add(apple1.position.y);
+    graphFactor = -8;
+    break;
+  case 1:
+    graphHistory.add(apple1.velocity.y);
+    graphFactor = 2;
+    break;
+  case 2:
+    graphHistory.add(apple1.acceleration.y);
+    graphFactor = 1;
+    graphOffset = 50;
+    break;
+  }
+  
+  if (graphHistory.size() > maxHistory) {
+    graphHistory.remove(0);
+  }
+
+  int x = width - graphWidth - 20;
+  int y = 40;
+
+  noStroke();
+  fill(0, 150);
+  rect(x, y, graphWidth, graphHeight);
+
+  stroke(255, 0, 0);
+  noFill();
+
+  beginShape();
+  for (int i = 0; i < graphHistory.size(); i++) {
+    float vx = map(i, 0, maxHistory - 1, x, x + graphWidth);
+    float vy = map(graphHistory.get(i), -(10000 / graphFactor), 10000 / graphFactor, y + graphHeight, y) + graphOffset;
+    vertex(vx, vy);
+  }
+  endShape();
+  
+  // text
+  fill(255);
   textSize(25);
   textAlign(LEFT);
 
@@ -327,6 +389,19 @@ void draw() {
   text("Geschwindigkeit: " + nf(apple1.velocity.y/1000, 1, 3) + " m/s", 30, 100);
   text("Seed: " + str(planet), 30, 125);
   text("FPS: " + int(frameRate), 30, 150);
+  
+  switch (graph % 3) {
+  case 0:
+    text("Weg-Zeit-Diagramm", width - graphWidth - 20, 30);
+    break;
+  case 1:
+    text("Geschwindigkeit-Zeit-Diagramm", width - graphWidth - 20, 30);
+    break;
+  case 2:
+    text("Beschleunigungs-Zeit-Diagramm", width - graphWidth - 20, 30);
+    break;
+  }
+  
 
   hint(ENABLE_DEPTH_TEST);
 }
