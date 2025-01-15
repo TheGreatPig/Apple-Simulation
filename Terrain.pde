@@ -72,12 +72,12 @@ class Terrain {
 
     float foundHeight = heights[x1][z1];
     
-    println("Terrain Height at (" + x1 + ", " + z1 + "): " + -foundHeight);
+    //println("Terrain Height at (" + x1 + ", " + z1 + "): " + -foundHeight);
     
     return -foundHeight;
   }
 
   println("Position outside terrain bounds");
   return 0;
-}
+  }
 }

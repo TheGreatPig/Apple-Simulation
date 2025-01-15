@@ -1,42 +1,55 @@
 public class PhysicsObject {
-    float size;
-    float speedY = 0;
-    float gravity = 9810;
-    float radius = 20;
-    float ground = 0;
-    float bounciness = 0.15;
-    
-    float x = 500;
-    float y = -1000;
-    float z = 0;
-    
-    public void logic() {
-        speedY += gravity * 0.01667;
-        if (y > ground) {
-            if (abs(speedY) < (gravity*0.02)){ 
-                speedY = 0;
-            }
-            if (speedY > 0) {
-                speedY = -(speedY * bounciness);
-            } 
-            
-        }
-    
-        y += speedY * 0.01667;
+  float size;
+  float radius = 20;
+  float ground = 0;
+  float bounciness = 0.15;
+  float gravity = 9810;
+
+  PVector position;
+  PVector velocity;
+  PVector acceleration;
+
+  public PhysicsObject(float x, float y, float z) {
+    position = new PVector(x, y, z);
+    velocity = new PVector(0, 0, 0);
+    acceleration = new PVector(0, 0, 0);
+  }
+
+  public void applyForce(PVector force) {
+    acceleration.add(force);
+  }
+
+  public void logic() {
+    PVector gravityForce = new PVector(0, gravity, 0);
+    applyForce(gravityForce);
+
+    velocity.add(PVector.mult(acceleration, 0.01667)); // deltaTime = 1/60
+
+    position.add(PVector.mult(velocity, 0.01667));
+
+    // Ground collision
+    if (position.y > ground) {
+      if (abs(velocity.y) < (gravity * 0.02)) {
+        velocity.y = 0;
+      } else if (velocity.y > 0) {
+        velocity.y = -velocity.y * bounciness;
+      }
+      position.y = ground;
     }
 
-    
-    
-    
-    public float getX() {
-        return this.x;
-    }
-    public float getY() {
-        return this.y;
-    }
-    public float getZ() {
-        return this.z;
-    }
-    
-    
+    acceleration.set(0, 0, 0);
+  }
+
+
+  public float getX() {
+    return this.position.x;
+  }
+
+  public float getY() {
+    return this.position.y;
+  }
+
+  public float getZ() {
+    return this.position.z;
+  }
 }
