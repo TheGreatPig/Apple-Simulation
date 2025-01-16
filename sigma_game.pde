@@ -30,7 +30,9 @@ int graphWidth = 400;
 int graphHeight = 200;
 int maxHistory = 150;
 int graphFactor;
-int graphOffset;
+int graphOffset = 50;
+
+boolean pickupState = false;
 
 void keyPressed() {
   switch (key) {
@@ -80,6 +82,14 @@ void keyReleased() {
     graph += 1;
     graphHistory.clear();
     break;
+  case 'e':
+    pickupState = !pickupState;
+    if (!pickupState) {
+      apple1.velocity.x = sin(camYaw) * 5000;
+      apple1.velocity.z = -cos(camYaw) * 5000;
+      apple1.velocity.y = sin(camPitch) * 5000;
+    }
+    break;
   case 'c':
     // planet cycle
     planet += 1;
@@ -97,6 +107,7 @@ void keyReleased() {
       terrain1.generateTerrain(3, 0.5, 5, planet);
       apple1.gravity = 3690;
       break;
+  
     }
   }
 }
@@ -118,7 +129,9 @@ void setup() {
 }
 
 void draw() {
-  apple1.overwrite = false;
+  if (!pickupState) {
+    apple1.overwrite = false;
+  }
   if (keyPressed) {
     if (keyIndex[0]) { // W
       camX -= sin(camYaw) * movementSpeed;
@@ -155,6 +168,13 @@ void draw() {
 
   // --------------------------------------------------------------------------------------
   // Logic
+  println(camPitch);
+  if (pickupState) {
+    apple1.overwrite = true;
+    apple1.position.x = -camX+100;
+    apple1.position.y = -camY;
+    apple1.position.z = -camZ;
+  }
 
   apple1.logic();
   yVelocity += 1;
@@ -207,7 +227,7 @@ void draw() {
   // tree
   pushMatrix();
   translate(0, -100, 0);
-  scale(75, 100, 75);
+  scale(200, 500, 200);
   rotateZ(PI);
   shape(tree);
   popMatrix();
@@ -328,7 +348,6 @@ void draw() {
   camera();
   
   // graph
-  println(apple1.acceleration.y);
   
   switch (graph % 3) {
   case 0:
@@ -342,7 +361,6 @@ void draw() {
   case 2:
     graphHistory.add(apple1.acceleration.y);
     graphFactor = 1;
-    graphOffset = 50;
     break;
   }
   

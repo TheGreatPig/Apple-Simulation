@@ -42,12 +42,14 @@ public class PhysicsObject {
           velocity.y = -velocity.y * bounciness;
         }
         position.y = ground;
+        
+        // friction
+        velocity.x = velocity.x * 0.8;
+        velocity.z = velocity.z * 0.8;
       }
     }
-
-    
   }
-
+  
 
   public float getX() {
     return this.position.x;
